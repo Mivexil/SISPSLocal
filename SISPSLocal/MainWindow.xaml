@@ -4,9 +4,26 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SISPSLocal"
+        xmlns:board="clr-namespace:SISPSLocal.Chessboard;assembly=SISPSLocal.Chessboard"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="480" Width="640">
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="10*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10*" />
+            <ColumnDefinition Width="6*" />
+        </Grid.ColumnDefinitions>
+        <Viewbox>
+            <TextBox Grid.Row="0" Name="FenNotationBox">
+                <TextBox.Text>
+                    <Binding Path="FenNotation" Mode="TwoWay" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Window}" UpdateSourceTrigger="PropertyChanged" />
+                </TextBox.Text>
+            </TextBox>
+        </Viewbox>        
+        <board:Chessboard Grid.Row="1" FenNotation="{Binding FenNotation, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" />
     </Grid>
+    
 </Window>
