@@ -13,6 +13,7 @@ namespace SISPSLocal.Classes
         WhiteKingside = 1,
         WhiteQueenside = 2,
         BlackKingside = 4,
-        BlackQueenside = 8
+        BlackQueenside = 8,
+        All = 15
     }
 }

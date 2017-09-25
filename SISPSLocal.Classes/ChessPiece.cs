@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -93,5 +94,24 @@ namespace SISPSLocal.Classes
         public static ChessPiece WhiteKing = new ChessPiece(ChessPieceType.King, ChessColor.White);
         public static ChessPiece BlackKing = new ChessPiece(ChessPieceType.King, ChessColor.Black);
         public static ChessPiece None = new ChessPiece(ChessPieceType.None, ChessColor.None);
+
+        public static bool operator==(ChessPiece left, ChessPiece right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator!=(ChessPiece left, ChessPiece right)
+        {
+            return !left.Equals(right);
+        }
+
+        private ChessSquarePosition? GetPositionIfExists(int rank, int file)
+        {
+            if (rank <= 0 || file <= 0 || rank > 8 || file > 8)
+            {
+                return null;
+            }
+            return new ChessSquarePosition(rank, file);
+        }
     }
 }

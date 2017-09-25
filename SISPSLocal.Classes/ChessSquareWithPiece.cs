@@ -24,6 +24,16 @@ namespace SISPSLocal.Classes
                 && Piece.Equals(((ChessSquareWithPiece)obj).Piece);
         }
 
+        public static bool operator ==(ChessSquareWithPiece left, ChessSquareWithPiece right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(ChessSquareWithPiece left, ChessSquareWithPiece right)
+        {
+            return !left.Equals(right);
+        }
+
         public override int GetHashCode()
         {
             return Position.GetHashCode() * 17 + Piece.GetHashCode();

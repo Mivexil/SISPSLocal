@@ -9,7 +9,7 @@ namespace SISPSLocal.Classes.Tests
         [TestMethod]
         public void SimpleScholarMate()
         {
-            var fen = new ChessBoardState("rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2");       
+            var game = Factory.GetChessGameFromString(SampleGames.ScholarsMate);
         }
     }
 }
