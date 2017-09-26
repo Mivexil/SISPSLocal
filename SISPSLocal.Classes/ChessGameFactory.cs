@@ -100,7 +100,8 @@ namespace SISPSLocal.Classes
                 else if (move.Type == MoveTextEntryType.RecursiveAnnotationVariation)
                 {
                     var prevMove = moveList[moveList.Count - 1];
-                    var parsedMovetext = ParseMovetext(((RAVEntry) move).MoveText, prevMove.StateBeforeMove);
+                    var parsedMovetext =
+                        new ChessVariation(ParseMovetext(((RAVEntry) move).MoveText, prevMove.StateBeforeMove));
                     var newList = prevMove.Variations.ToList();
                     newList.Add(parsedMovetext);
                     if (prevMove.Castle != ChessCastles.None)

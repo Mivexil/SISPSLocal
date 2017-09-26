@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace SISPSLocal.Classes
 {
@@ -13,7 +12,7 @@ namespace SISPSLocal.Classes
     {
         public int? NAG { get; }
         public string Annotation { get; }
-        public List<List<ChessMove>> Variations { get; }
+        public List<ChessVariation> Variations { get; }
         public ChessSquarePosition OriginSquare { get; }
         public ChessSquarePosition DestinationSquare { get; }
         public ChessPiece MovingPiece { get; }
@@ -76,7 +75,7 @@ namespace SISPSLocal.Classes
             ChessCastles castle,
             int? nag = null,
             string annotation = null,
-            IEnumerable<List<ChessMove>> variations = null)
+            IEnumerable<ChessVariation> variations = null)
         {
             _isCheck = _isMate = _needsFileDisambiguation = _needsRankDisambiguation = null;
             StateBeforeMove = previousState;
@@ -130,7 +129,7 @@ namespace SISPSLocal.Classes
             );
             NAG = nag;
             Annotation = annotation;
-            Variations = variations?.ToList() ?? new List<List<ChessMove>>();
+            Variations = variations?.ToList() ?? new List<ChessVariation>();
         }
 
         private static ChessCastles GetNewCastles(ChessBoardState previousState,
@@ -199,7 +198,7 @@ namespace SISPSLocal.Classes
             ChessPiece promotionPiece,
             int? nag = null,
             string annotation = null,
-            IEnumerable<List<ChessMove>> variations = null)
+            IEnumerable<ChessVariation> variations = null)
         {
             var previousLegalMoves = previousState.GetLegalMoves();
             var matchingMoves = previousLegalMoves.Where(x => x.MovingPiece == movingPiece &&
@@ -230,7 +229,7 @@ namespace SISPSLocal.Classes
             StateAfterMove = move.StateAfterMove;
             NAG = nag;
             Annotation = annotation;
-            Variations = variations?.ToList() ?? new List<List<ChessMove>>();
+            Variations = variations?.ToList() ?? new List<ChessVariation>();
         }
 
         public ChessMove(ChessBoardState previousState,
@@ -239,7 +238,7 @@ namespace SISPSLocal.Classes
             ChessPiece promotionPiece,
             int? nag = null,
             string annotation = null,
-            IEnumerable<List<ChessMove>> variations = null)
+            IEnumerable<ChessVariation> variations = null)
         {
             _isCheck = _isMate = _needsFileDisambiguation = _needsRankDisambiguation = null;
             StateBeforeMove = previousState;
@@ -277,7 +276,7 @@ namespace SISPSLocal.Classes
             );
             NAG = nag;
             Annotation = annotation;
-            Variations = variations?.ToList() ?? new List<List<ChessMove>>();
+            Variations = variations?.ToList() ?? new List<ChessVariation>();
         }
 
         public string DisplayString
@@ -344,31 +343,7 @@ namespace SISPSLocal.Classes
                 {
                     return "";
                 }
-                var sb = new StringBuilder();
-                foreach (var line in Variations)
-                {
-                    sb.Append(" (");
-                    if (line[0].Color == ChessColor.Black)
-                    {
-                        sb.Append(line[0].MoveNumber + ". ...");
-                    }
-                    else
-                    {
-                        sb.Append(line[0].MoveNumber + ". ");
-                    }
-                    for (var i = 0; i < line.Count; i++)
-                    {
-                        if (line[i].Color == ChessColor.White && i != 0)
-                        {
-                            sb.Append(i / 2 + 1);
-                            sb.Append(". ");
-                        }
-                        sb.Append(line[i].DisplayString);
-                        sb.Append(" ");
-                    }
-                    sb.Append(")");
-                }
-                return sb.ToString();
+                return " " + string.Join(" ", Variations.Select(v => v.ToString()));
             }
         }
     }

@@ -54,6 +54,7 @@
     <Compile Include="ChessPieceType.cs" />
     <Compile Include="ChessSquarePosition.cs" />
     <Compile Include="ChessSquareWithPiece.cs" />
+    <Compile Include="ChessVariation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

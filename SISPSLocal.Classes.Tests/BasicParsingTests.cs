@@ -10,6 +10,8 @@ namespace SISPSLocal.Classes.Tests
         public void SimpleScholarMate()
         {
             var game = Factory.GetChessGameFromString(SampleGames.ScholarsMate);
+            var str = SampleGames.BaseGameString + game.ToString();
+            var game2 = Factory.GetChessGameFromString(str);
         }
     }
 }

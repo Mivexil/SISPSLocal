@@ -6,7 +6,7 @@ namespace SISPSLocal.Classes.Tests
 {
     public static class SampleGames
     {
-        private const string BaseSTR = @"[Event ""Test Match Name""]
+        public const string BaseGameString = @"[Event ""Test Match Name""]
 [Site ""Test Match Site""]
 [Date ""1970.01.01""]
 [Round ""1""]
@@ -16,7 +16,7 @@ namespace SISPSLocal.Classes.Tests
 
 ";
 
-        public const string ScholarsMate = BaseSTR
+        public const string ScholarsMate = BaseGameString
             + @"1. e4 e5 {standard opening} 2. Bc4 (2. d4) Nc6 3. Qh5 Nf6 4. Qxf7 1-0";
     }
 }
