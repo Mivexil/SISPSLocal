@@ -1,13 +1,19 @@
-﻿using System;
+﻿// <copyright file="ChessMove.cs" company="Rolls-Royce plc">
+//   Copyright (c) 2017 Rolls-Royce plc
+// </copyright>
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace SISPSLocal.Classes
 {
     public struct ChessMove
     {
+        public int? NAG { get; }
+        public string Annotation { get; }
+        public List<List<ChessMove>> Variations { get; }
         public ChessSquarePosition OriginSquare { get; }
         public ChessSquarePosition DestinationSquare { get; }
         public ChessPiece MovingPiece { get; }
@@ -15,46 +21,48 @@ namespace SISPSLocal.Classes
         public ChessColor Color { get; }
         public bool IsCapture { get; }
         public bool IsEnPassant { get; }
-        private bool? _isCheck;
-        public bool IsCheck
-        {
-            get { return _isCheck ?? StateAfterMove.IsCheck; }
-        }
-
-        private bool? _isMate;
-        public bool IsMate
-        {
-            get { return _isMate ?? StateAfterMove.IsMate; }
-        }
-
+        private readonly bool? _isCheck;
+        public bool IsCheck { get { return _isCheck ?? StateAfterMove.IsCheck; } }
+        private readonly bool? _isMate;
+        public bool IsMate { get { return _isMate ?? StateAfterMove.IsMate; } }
         private bool? _needsRankDisambiguation;
+
         public bool NeedsRankDisambiguation
         {
             get
             {
-                if (_needsRankDisambiguation != null) return _needsRankDisambiguation.Value;
+                if (_needsRankDisambiguation != null)
+                {
+                    return _needsRankDisambiguation.Value;
+                }
                 var movingPiece = MovingPiece;
                 var originSquare = OriginSquare;
                 var destinationSquare = DestinationSquare;
                 var sameDestMoves = StateBeforeMove.GetLegalMoves()
                     .Where(x => x.MovingPiece.Type == movingPiece.Type && x.DestinationSquare == destinationSquare);
-                _needsRankDisambiguation = sameDestMoves.Where(x => x.OriginSquare.File == originSquare.File).Count() > 1;
+                _needsRankDisambiguation = sameDestMoves.Where(x => x.OriginSquare.File == originSquare.File).Count()
+                    > 1;
                 return _needsRankDisambiguation.Value;
             }
         }
 
         private bool? _needsFileDisambiguation;
+
         public bool NeedsFileDisambiguation
         {
             get
             {
-                if (_needsFileDisambiguation != null) return _needsFileDisambiguation.Value;
+                if (_needsFileDisambiguation != null)
+                {
+                    return _needsFileDisambiguation.Value;
+                }
                 var movingPiece = MovingPiece;
                 var originSquare = OriginSquare;
                 var destinationSquare = DestinationSquare;
                 var sameDestMoves = StateBeforeMove.GetLegalMoves()
                     .Where(x => x.MovingPiece.Type == movingPiece.Type && x.DestinationSquare == destinationSquare);
-                _needsFileDisambiguation = sameDestMoves.Count() > 1 && !sameDestMoves.All(x => x.OriginSquare.File == originSquare.File);
+                _needsFileDisambiguation = sameDestMoves.Count() > 1
+                    && !sameDestMoves.All(x => x.OriginSquare.File == originSquare.File);
                 return _needsFileDisambiguation.Value;
             }
         }
@@ -65,46 +73,54 @@ namespace SISPSLocal.Classes
         public ChessBoardState StateAfterMove { get; }
 
         public ChessMove(ChessBoardState previousState,
-            ChessCastles castle)
+            ChessCastles castle,
+            int? nag = null,
+            string annotation = null,
+            IEnumerable<List<ChessMove>> variations = null)
         {
             _isCheck = _isMate = _needsFileDisambiguation = _needsRankDisambiguation = null;
             StateBeforeMove = previousState;
-            Color = castle == ChessCastles.BlackKingside || castle == ChessCastles.BlackQueenside ?
-                ChessColor.Black : ChessColor.White;
-            OriginSquare = Color == ChessColor.Black ?
-                new ChessSquarePosition("e8") :
-                new ChessSquarePosition("e1");
-            DestinationSquare = castle == ChessCastles.BlackKingside ? new ChessSquarePosition("g8") :
-                                castle == ChessCastles.BlackQueenside ? new ChessSquarePosition("c8") :
-                                castle == ChessCastles.WhiteKingside ? new ChessSquarePosition("g1") :
-                                new ChessSquarePosition("c1");
+            Color = castle == ChessCastles.BlackKingside || castle == ChessCastles.BlackQueenside
+                ? ChessColor.Black
+                : ChessColor.White;
+            OriginSquare = Color == ChessColor.Black ? new ChessSquarePosition("e8") : new ChessSquarePosition("e1");
+            DestinationSquare = castle == ChessCastles.BlackKingside
+                ? new ChessSquarePosition("g8")
+                : castle == ChessCastles.BlackQueenside
+                    ? new ChessSquarePosition("c8")
+                    : castle == ChessCastles.WhiteKingside
+                        ? new ChessSquarePosition("g1")
+                        : new ChessSquarePosition("c1");
             MovingPiece = Color == ChessColor.Black ? ChessPiece.BlackKing : ChessPiece.WhiteKing;
             MoveNumber = previousState.MoveCounter;
             IsEnPassant = false;
             IsCapture = false;
             PromotionPiece = ChessPiece.None;
             Castle = castle;
-
-
             var newSquares = StateBeforeMove.Board.Squares.ToList();
             newSquares[OriginSquare.Index] = new ChessSquareWithPiece(OriginSquare, ChessPiece.None);
             newSquares[DestinationSquare.Index] = new ChessSquareWithPiece(DestinationSquare, MovingPiece);
-            var rookSource = castle == ChessCastles.BlackKingside ? new ChessSquarePosition("h8") :
-                             castle == ChessCastles.BlackQueenside ? new ChessSquarePosition("a8") :
-                             castle == ChessCastles.WhiteKingside ? new ChessSquarePosition("h1") :
-                             new ChessSquarePosition("a1");
-            var rookTarget = castle == ChessCastles.BlackKingside ? new ChessSquarePosition("f8") :
-                             castle == ChessCastles.BlackQueenside ? new ChessSquarePosition("d8") :
-                             castle == ChessCastles.WhiteKingside ? new ChessSquarePosition("f1") :
-                             new ChessSquarePosition("d1");
+            var rookSource = castle == ChessCastles.BlackKingside
+                ? new ChessSquarePosition("h8")
+                : castle == ChessCastles.BlackQueenside
+                    ? new ChessSquarePosition("a8")
+                    : castle == ChessCastles.WhiteKingside
+                        ? new ChessSquarePosition("h1")
+                        : new ChessSquarePosition("a1");
+            var rookTarget = castle == ChessCastles.BlackKingside
+                ? new ChessSquarePosition("f8")
+                : castle == ChessCastles.BlackQueenside
+                    ? new ChessSquarePosition("d8")
+                    : castle == ChessCastles.WhiteKingside
+                        ? new ChessSquarePosition("f1")
+                        : new ChessSquarePosition("d1");
             newSquares[rookSource.Index] = new ChessSquareWithPiece(rookSource, ChessPiece.None);
-            newSquares[rookTarget.Index] = new ChessSquareWithPiece(rookTarget, Color == ChessColor.Black ? ChessPiece.BlackRook : ChessPiece.WhiteRook);
-
-            var castlesToDrop = Color == ChessColor.Black ?
-                ChessCastles.BlackKingside | ChessCastles.BlackQueenside :
-                ChessCastles.WhiteKingside | ChessCastles.WhiteQueenside;
-            var newCastles = (previousState.AllowedCastles & ~castlesToDrop) & ChessCastles.All;
-
+            newSquares[rookTarget.Index] = new ChessSquareWithPiece(rookTarget,
+                Color == ChessColor.Black ? ChessPiece.BlackRook : ChessPiece.WhiteRook);
+            var castlesToDrop = Color == ChessColor.Black
+                ? ChessCastles.BlackKingside | ChessCastles.BlackQueenside
+                : ChessCastles.WhiteKingside | ChessCastles.WhiteQueenside;
+            var newCastles = previousState.AllowedCastles & ~castlesToDrop & ChessCastles.All;
             StateAfterMove = new ChessBoardState(new ChessBoard(newSquares),
                 newCastles,
                 previousState.WhiteToMove ? previousState.MoveCounter : previousState.MoveCounter + 1,
@@ -112,6 +128,9 @@ namespace SISPSLocal.Classes
                 !previousState.WhiteToMove,
                 null
             );
+            NAG = nag;
+            Annotation = annotation;
+            Variations = variations?.ToList() ?? new List<List<ChessMove>>();
         }
 
         private static ChessCastles GetNewCastles(ChessBoardState previousState,
@@ -125,48 +144,48 @@ namespace SISPSLocal.Classes
             {
                 if (movingPiece.Type == ChessPieceType.King)
                 {
-                    previousCastles = (previousCastles & ~ChessCastles.WhiteKingside) & ChessCastles.All;
-                    previousCastles = (previousCastles & ~ChessCastles.WhiteQueenside) & ChessCastles.All;
+                    previousCastles = previousCastles & ~ChessCastles.WhiteKingside & ChessCastles.All;
+                    previousCastles = previousCastles & ~ChessCastles.WhiteQueenside & ChessCastles.All;
                 }
                 else if (movingPiece.Type == ChessPieceType.Rook && originSquare == new ChessSquarePosition("a1"))
                 {
-                    previousCastles = (previousCastles & ~ChessCastles.WhiteQueenside) & ChessCastles.All;
+                    previousCastles = previousCastles & ~ChessCastles.WhiteQueenside & ChessCastles.All;
                 }
                 else if (movingPiece.Type == ChessPieceType.Rook && originSquare == new ChessSquarePosition("h1"))
                 {
-                    previousCastles = (previousCastles & ~ChessCastles.WhiteKingside) & ChessCastles.All;
+                    previousCastles = previousCastles & ~ChessCastles.WhiteKingside & ChessCastles.All;
                 }
                 else if (destinationSquare == new ChessSquarePosition("a8"))
                 {
-                    previousCastles = (previousCastles & ~ChessCastles.BlackQueenside) & ChessCastles.All;
+                    previousCastles = previousCastles & ~ChessCastles.BlackQueenside & ChessCastles.All;
                 }
                 else if (destinationSquare == new ChessSquarePosition("h8"))
                 {
-                    previousCastles = (previousCastles & ~ChessCastles.BlackKingside) & ChessCastles.All;
+                    previousCastles = previousCastles & ~ChessCastles.BlackKingside & ChessCastles.All;
                 }
             }
             if (color == ChessColor.Black)
             {
                 if (movingPiece.Type == ChessPieceType.King)
                 {
-                    previousCastles = (previousCastles & ~ChessCastles.BlackKingside) & ChessCastles.All;
-                    previousCastles = (previousCastles & ~ChessCastles.BlackQueenside) & ChessCastles.All;
+                    previousCastles = previousCastles & ~ChessCastles.BlackKingside & ChessCastles.All;
+                    previousCastles = previousCastles & ~ChessCastles.BlackQueenside & ChessCastles.All;
                 }
                 else if (movingPiece.Type == ChessPieceType.Rook && originSquare == new ChessSquarePosition("a8"))
                 {
-                    previousCastles = (previousCastles & ~ChessCastles.BlackQueenside) & ChessCastles.All;
+                    previousCastles = previousCastles & ~ChessCastles.BlackQueenside & ChessCastles.All;
                 }
                 else if (movingPiece.Type == ChessPieceType.Rook && originSquare == new ChessSquarePosition("h8"))
                 {
-                    previousCastles = (previousCastles & ~ChessCastles.BlackKingside) & ChessCastles.All;
+                    previousCastles = previousCastles & ~ChessCastles.BlackKingside & ChessCastles.All;
                 }
                 else if (destinationSquare == new ChessSquarePosition("a1"))
                 {
-                    previousCastles = (previousCastles & ~ChessCastles.WhiteQueenside) & ChessCastles.All;
+                    previousCastles = previousCastles & ~ChessCastles.WhiteQueenside & ChessCastles.All;
                 }
                 else if (destinationSquare == new ChessSquarePosition("h1"))
                 {
-                    previousCastles = (previousCastles & ~ChessCastles.WhiteKingside) & ChessCastles.All;
+                    previousCastles = previousCastles & ~ChessCastles.WhiteKingside & ChessCastles.All;
                 }
             }
             return previousCastles;
@@ -177,14 +196,17 @@ namespace SISPSLocal.Classes
             int? originRank,
             int? originFile,
             ChessSquarePosition destinationSquare,
-            ChessPiece promotionPiece)
+            ChessPiece promotionPiece,
+            int? nag = null,
+            string annotation = null,
+            IEnumerable<List<ChessMove>> variations = null)
         {
             var previousLegalMoves = previousState.GetLegalMoves();
             var matchingMoves = previousLegalMoves.Where(x => x.MovingPiece == movingPiece &&
-            (originRank == null || x.OriginSquare.Rank == originRank.Value) &&
-            (originFile == null || x.OriginSquare.File == originFile.Value) &&
-            x.DestinationSquare == destinationSquare &&
-            x.PromotionPiece == promotionPiece);
+                (originRank == null || x.OriginSquare.Rank == originRank.Value) &&
+                (originFile == null || x.OriginSquare.File == originFile.Value) &&
+                x.DestinationSquare == destinationSquare &&
+                x.PromotionPiece == promotionPiece);
             if (matchingMoves.Count() == 0)
             {
                 throw new ArgumentException($"The move could not be made");
@@ -206,12 +228,18 @@ namespace SISPSLocal.Classes
             IsCapture = move.IsCapture;
             Castle = move.Castle;
             StateAfterMove = move.StateAfterMove;
+            NAG = nag;
+            Annotation = annotation;
+            Variations = variations?.ToList() ?? new List<List<ChessMove>>();
         }
 
         public ChessMove(ChessBoardState previousState,
             ChessSquarePosition originSquare,
             ChessSquarePosition destinationSquare,
-            ChessPiece promotionPiece) : this()
+            ChessPiece promotionPiece,
+            int? nag = null,
+            string annotation = null,
+            IEnumerable<List<ChessMove>> variations = null)
         {
             _isCheck = _isMate = _needsFileDisambiguation = _needsRankDisambiguation = null;
             StateBeforeMove = previousState;
@@ -233,21 +261,23 @@ namespace SISPSLocal.Classes
             newSquares[DestinationSquare.Index] = new ChessSquareWithPiece(DestinationSquare, MovingPiece);
             if (IsEnPassant)
             {
-                var epPosition = StateBeforeMove.WhiteToMove ? new ChessSquarePosition(destinationSquare.Rank - 1, destinationSquare.File) :
-                    new ChessSquarePosition(destinationSquare.Rank + 1, destinationSquare.File);
+                var epPosition = StateBeforeMove.WhiteToMove
+                    ? new ChessSquarePosition(destinationSquare.Rank - 1, destinationSquare.File)
+                    : new ChessSquarePosition(destinationSquare.Rank + 1, destinationSquare.File);
                 newSquares[epPosition.Index] = new ChessSquareWithPiece(epPosition, ChessPiece.None);
             }
-
-
             StateAfterMove = new ChessBoardState(new ChessBoard(newSquares),
                 GetNewCastles(previousState, Color, MovingPiece, OriginSquare, DestinationSquare),
                 previousState.WhiteToMove ? previousState.MoveCounter : previousState.MoveCounter + 1,
-                (IsCapture || MovingPiece.Type == ChessPieceType.Pawn) ? 0 : previousState.HalfMoveClock + 1,
+                IsCapture || MovingPiece.Type == ChessPieceType.Pawn ? 0 : previousState.HalfMoveClock + 1,
                 !previousState.WhiteToMove,
-                (MovingPiece.Type == ChessPieceType.Pawn && Math.Abs(OriginSquare.Rank - DestinationSquare.Rank) == 2) ?
-                new ChessSquarePosition((OriginSquare.Rank + DestinationSquare.Rank) / 2, DestinationSquare.File) :
-                (ChessSquarePosition?)null
+                MovingPiece.Type == ChessPieceType.Pawn && Math.Abs(OriginSquare.Rank - DestinationSquare.Rank) == 2
+                    ? new ChessSquarePosition((OriginSquare.Rank + DestinationSquare.Rank) / 2, DestinationSquare.File)
+                    : (ChessSquarePosition?) null
             );
+            NAG = nag;
+            Annotation = annotation;
+            Variations = variations?.ToList() ?? new List<List<ChessMove>>();
         }
 
         public string DisplayString
@@ -258,7 +288,8 @@ namespace SISPSLocal.Classes
                 {
                     return _castleString;
                 }
-                return $"{_pieceString}{_sourceFileString}{_sourceRankString}{_captureString}{_targetSquareString}{_promotionString}{_checkMateString}";
+                return
+                    $"{_pieceString}{_sourceFileString}{_sourceRankString}{_captureString}{_targetSquareString}{_promotionString}{_checkMateString}{_nagString}{_commentString}{_variationsString}";
             }
         }
 
@@ -270,7 +301,11 @@ namespace SISPSLocal.Classes
         private string _targetSquareString => DestinationSquare.ToString();
         private string _captureString => IsCapture ? "x" : "";
         private string _sourceRankString => NeedsRankDisambiguation ? OriginSquare.Rank.ToString() : "";
-        private string _sourceFileString => NeedsFileDisambiguation ? ((char)('a' + (OriginSquare.File - 1))).ToString() : "";
+
+        private string _sourceFileString => NeedsFileDisambiguation
+            ? ((char) ('a' + (OriginSquare.File - 1))).ToString()
+            : "";
+
         private string _pieceString
         {
             get
@@ -278,19 +313,63 @@ namespace SISPSLocal.Classes
                 var fen = MovingPiece.GetFen().ToString().ToUpper();
                 return fen == "P" ? "" : fen;
             }
-        }            
+        }
+
         private string _promotionString
         {
             get
             {
-                if (PromotionPiece == ChessPiece.None) return "";
+                if (PromotionPiece == ChessPiece.None)
+                {
+                    return "";
+                }
                 var fen = PromotionPiece.GetFen().ToString().ToUpper();
                 return $"={fen}";
             }
         }
-        private string _castleString => (Castle == ChessCastles.BlackKingside || Castle == ChessCastles.WhiteKingside) ?
-            "O-O" : "O-O-O";
+
+        private string _castleString => Castle == ChessCastles.BlackKingside || Castle == ChessCastles.WhiteKingside
+            ? "O-O"
+            : "O-O-O";
 
         private string _checkMateString => IsMate ? "#" : IsCheck ? "+" : "";
+        private string _commentString => Annotation == null ? "" : " {" + Annotation + "}";
+        private string _nagString => NAG == null ? "" : $"${NAG}";
+
+        private string _variationsString
+        {
+            get
+            {
+                if (!Variations.Any())
+                {
+                    return "";
+                }
+                var sb = new StringBuilder();
+                foreach (var line in Variations)
+                {
+                    sb.Append(" (");
+                    if (line[0].Color == ChessColor.Black)
+                    {
+                        sb.Append(line[0].MoveNumber + ". ...");
+                    }
+                    else
+                    {
+                        sb.Append(line[0].MoveNumber + ". ");
+                    }
+                    for (var i = 0; i < line.Count; i++)
+                    {
+                        if (line[i].Color == ChessColor.White && i != 0)
+                        {
+                            sb.Append(i / 2 + 1);
+                            sb.Append(". ");
+                        }
+                        sb.Append(line[i].DisplayString);
+                        sb.Append(" ");
+                    }
+                    sb.Append(")");
+                }
+                return sb.ToString();
+            }
+        }
     }
 }

@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// <copyright file="SampleGames.cs" company="Rolls-Royce plc">
+//   Copyright (c) 2017 Rolls-Royce plc
+// </copyright>
 
 namespace SISPSLocal.Classes.Tests
 {
@@ -17,7 +15,8 @@ namespace SISPSLocal.Classes.Tests
 [Result ""1/2-1/2""]
 
 ";
-        public const string ScholarsMate = BaseSTR + @"1. e4 e5 2. Bc4 Nc6 3. Qh5 Nf6 4. Qxf7 1-0";
 
+        public const string ScholarsMate = BaseSTR
+            + @"1. e4 e5 {standard opening} 2. Bc4 (2. d4) Nc6 3. Qh5 Nf6 4. Qxf7 1-0";
     }
 }
