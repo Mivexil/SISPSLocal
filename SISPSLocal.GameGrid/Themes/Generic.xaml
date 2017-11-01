@@ -6,11 +6,24 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type local:GameGrid}">
-                    <Border Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}">
-
-                    </Border>
+                    <ItemsControl ItemsSource="{TemplateBinding Moves}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Rows="{Binding GridRows}" Columns="2" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBox x:Name="Move">
+                                    <TextBox.Template>
+                                        <ControlTemplate TargetType="TextBox">
+                                            <TextBox Text="{Binding DisplayString, Mode=OneWay}" />
+                                        </ControlTemplate>
+                                    </TextBox.Template>
+                                </TextBox>                               
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

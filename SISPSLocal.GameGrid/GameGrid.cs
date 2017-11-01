@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SISPSLocal.Classes;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -48,6 +49,55 @@ namespace SISPSLocal.GameGrid
     public class GameGrid : Control, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
+
+        private ChessGameFactory _gameFactory = new ChessGameFactory();
+
+        public static readonly DependencyProperty GameProperty = DependencyProperty.Register(nameof(Game), 
+            typeof(ChessGame), 
+            typeof(GameGrid),
+            new FrameworkPropertyMetadata(new ChessGame(), new PropertyChangedCallback(OnGameChanged)));
+
+        private static void OnGameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((GameGrid)d).Moves = ((ChessGame)e.NewValue).Moves;
+        }
+
+        public ChessGame Game
+        {
+            get { return (ChessGame)GetValue(GameProperty); }
+            set { SetValue(GameProperty, value); }
+        }
+
+        public static readonly DependencyProperty GameStringProperty = DependencyProperty.Register(nameof(GameString), 
+            typeof(string), 
+            typeof(GameGrid),
+            new FrameworkPropertyMetadata("", new PropertyChangedCallback(OnGameStringChanged)));
+
+        public static readonly DependencyProperty MovesProperty = DependencyProperty.Register(nameof(Moves), 
+            typeof(IReadOnlyCollection<ChessMove>), 
+            typeof(GameGrid));
+
+        public IReadOnlyCollection<ChessMove> Moves
+        {
+            get { return (IReadOnlyCollection<ChessMove>)GetValue(MovesProperty); }
+            set { SetValue(MovesProperty, value); }
+        }
+
+        private static void OnGameStringChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((GameGrid)d).Game = ((GameGrid)d)._gameFactory.GetChessGameFromString((string)e.NewValue);            
+        }
+
+        public string GameString
+        {
+            get { return (string)GetValue(GameStringProperty); }
+            set { SetValue(GameStringProperty, value); }
+        }
+
+        public int GridRows
+        {
+            get { return (Game.Moves.Count / 2) + (Game.Moves.Count % 2); }
+        }
 
         private void NotifyPropertyChanged(string name)
         {

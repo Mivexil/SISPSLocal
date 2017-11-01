@@ -78,5 +78,11 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SISPSLocal.Classes\SISPSLocal.Classes.csproj">
+      <Project>{49180B62-900E-4141-A73F-4411E99FFF77}</Project>
+      <Name>SISPSLocal.Classes</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

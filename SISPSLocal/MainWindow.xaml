@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SISPSLocal"
         xmlns:board="clr-namespace:SISPSLocal.Chessboard;assembly=SISPSLocal.Chessboard"
+        xmlns:grid="clr-namespace:SISPSLocal.GameGrid;assembly=SISPSLocal.GameGrid"
         mc:Ignorable="d"
         Title="MainWindow" Height="480" Width="640">
     <Grid>
@@ -24,6 +25,7 @@
             </TextBox>
         </Viewbox>        
         <board:Chessboard Grid.Row="1" FenNotation="{Binding FenNotation, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" />
+        <grid:GameGrid Grid.Row="1" Grid.Column="1" GameString="{Binding ChessGame, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
     </Grid>
     
 </Window>

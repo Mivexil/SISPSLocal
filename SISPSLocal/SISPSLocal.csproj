@@ -102,6 +102,10 @@
       <Project>{582fd471-40f0-440d-9045-b896b505147c}</Project>
       <Name>SISPSLocal.Chessboard</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SISPSLocal.GameGrid\SISPSLocal.GameGrid.csproj">
+      <Project>{b4802d84-2a07-46f4-8872-b61b5aaad5e7}</Project>
+      <Name>SISPSLocal.GameGrid</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
