@@ -10,8 +10,7 @@ namespace SISPSLocal.Classes
 {
     public struct ChessMove
     {
-        public int? NAG { get; }
-        public string Annotation { get; }
+        public List<ChessAnnotation> Annotations { get; }
         public List<ChessVariation> Variations { get; }
         public ChessSquarePosition OriginSquare { get; }
         public ChessSquarePosition DestinationSquare { get; }
@@ -73,8 +72,7 @@ namespace SISPSLocal.Classes
 
         public ChessMove(ChessBoardState previousState,
             ChessCastles castle,
-            int? nag = null,
-            string annotation = null,
+            IEnumerable<ChessAnnotation> annotations = null,
             IEnumerable<ChessVariation> variations = null)
         {
             _isCheck = _isMate = _needsFileDisambiguation = _needsRankDisambiguation = null;
@@ -127,8 +125,7 @@ namespace SISPSLocal.Classes
                 !previousState.WhiteToMove,
                 null
             );
-            NAG = nag;
-            Annotation = annotation;
+            Annotations = annotations?.ToList() ?? new List<ChessAnnotation>();
             Variations = variations?.ToList() ?? new List<ChessVariation>();
         }
 
@@ -196,8 +193,7 @@ namespace SISPSLocal.Classes
             int? originFile,
             ChessSquarePosition destinationSquare,
             ChessPiece promotionPiece,
-            int? nag = null,
-            string annotation = null,
+            IEnumerable<ChessAnnotation> annotations = null,
             IEnumerable<ChessVariation> variations = null)
         {
             var previousLegalMoves = previousState.GetLegalMoves();
@@ -227,8 +223,7 @@ namespace SISPSLocal.Classes
             IsCapture = move.IsCapture;
             Castle = move.Castle;
             StateAfterMove = move.StateAfterMove;
-            NAG = nag;
-            Annotation = annotation;
+            Annotations = annotations?.ToList() ?? new List<ChessAnnotation>();
             Variations = variations?.ToList() ?? new List<ChessVariation>();
         }
 
@@ -236,8 +231,7 @@ namespace SISPSLocal.Classes
             ChessSquarePosition originSquare,
             ChessSquarePosition destinationSquare,
             ChessPiece promotionPiece,
-            int? nag = null,
-            string annotation = null,
+            IEnumerable<ChessAnnotation> annotations = null,
             IEnumerable<ChessVariation> variations = null)
         {
             _isCheck = _isMate = _needsFileDisambiguation = _needsRankDisambiguation = null;
@@ -274,8 +268,7 @@ namespace SISPSLocal.Classes
                     ? new ChessSquarePosition((OriginSquare.Rank + DestinationSquare.Rank) / 2, DestinationSquare.File)
                     : (ChessSquarePosition?) null
             );
-            NAG = nag;
-            Annotation = annotation;
+            Annotations = annotations?.ToList() ?? new List<ChessAnnotation>();
             Variations = variations?.ToList() ?? new List<ChessVariation>();
         }
 
@@ -288,7 +281,7 @@ namespace SISPSLocal.Classes
                     return _castleString;
                 }
                 return
-                    $"{_pieceString}{_sourceFileString}{_sourceRankString}{_captureString}{_targetSquareString}{_promotionString}{_checkMateString}{_nagString}{_commentString}{_variationsString}";
+                    $"{_pieceString}{_sourceFileString}{_sourceRankString}{_captureString}{_targetSquareString}{_promotionString}{_checkMateString}{_commentString}{_variationsString}";
             }
         }
 
@@ -332,8 +325,17 @@ namespace SISPSLocal.Classes
             : "O-O-O";
 
         private string _checkMateString => IsMate ? "#" : IsCheck ? "+" : "";
-        private string _commentString => Annotation == null ? "" : " {" + Annotation + "}";
-        private string _nagString => NAG == null ? "" : $"${NAG}";
+        private string _commentString
+        {
+            get
+            {
+                if (!Annotations.Any())
+                {
+                    return "";
+                }
+                return " " + string.Join(" ", Annotations.Select(a => a.ToString()));
+            }
+        }
 
         private string _variationsString
         {

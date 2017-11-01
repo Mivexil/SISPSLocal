@@ -52,12 +52,12 @@ namespace SISPSLocal.Classes
                 else if (move.Type == MoveTextEntryType.Comment)
                 {
                     var prevMove = moveList[moveList.Count - 1];
+                    var annotation = new ChessAnnotation(((CommentEntry)move).Comment);
                     if (prevMove.Castle != ChessCastles.None)
                     {
                         var newMove = new ChessMove(prevMove.StateBeforeMove,
                             prevMove.Castle,
-                            prevMove.NAG,
-                            ((CommentEntry) move).Comment,
+                            prevMove.Annotations.Concat(new List<ChessAnnotation>() { annotation }),
                             prevMove.Variations);
                         moveList[moveList.Count - 1] = newMove;
                     }
@@ -67,8 +67,7 @@ namespace SISPSLocal.Classes
                             prevMove.OriginSquare,
                             prevMove.DestinationSquare,
                             prevMove.PromotionPiece,
-                            prevMove.NAG,
-                            ((CommentEntry) move).Comment,
+                            prevMove.Annotations.Concat(new List<ChessAnnotation>() { annotation }),
                             prevMove.Variations);
                         moveList[moveList.Count - 1] = newMove;
                     }
@@ -76,12 +75,12 @@ namespace SISPSLocal.Classes
                 else if (move.Type == MoveTextEntryType.NumericAnnotationGlyph)
                 {
                     var prevMove = moveList[moveList.Count - 1];
+                    var annotation = new ChessAnnotation(((NAGEntry)move).Code);
                     if (prevMove.Castle != ChessCastles.None)
                     {
                         var newMove = new ChessMove(prevMove.StateBeforeMove,
                             prevMove.Castle,
-                            ((NAGEntry) move).Code,
-                            prevMove.Annotation,
+                            prevMove.Annotations.Concat(new List<ChessAnnotation>() { annotation }),
                             prevMove.Variations);
                         moveList[moveList.Count - 1] = newMove;
                     }
@@ -91,8 +90,7 @@ namespace SISPSLocal.Classes
                             prevMove.OriginSquare,
                             prevMove.DestinationSquare,
                             prevMove.PromotionPiece,
-                            ((NAGEntry) move).Code,
-                            prevMove.Annotation,
+                            prevMove.Annotations.Concat(new List<ChessAnnotation>() { annotation }),
                             prevMove.Variations);
                         moveList[moveList.Count - 1] = newMove;
                     }
@@ -108,8 +106,7 @@ namespace SISPSLocal.Classes
                     {
                         var newMove = new ChessMove(prevMove.StateBeforeMove,
                             prevMove.Castle,
-                            prevMove.NAG,
-                            prevMove.Annotation,
+                            prevMove.Annotations,
                             newList);
                         moveList[moveList.Count - 1] = newMove;
                     }
@@ -119,8 +116,7 @@ namespace SISPSLocal.Classes
                             prevMove.OriginSquare,
                             prevMove.DestinationSquare,
                             prevMove.PromotionPiece,
-                            prevMove.NAG,
-                            prevMove.Annotation,
+                            prevMove.Annotations,
                             newList);
                         moveList[moveList.Count - 1] = newMove;
                     }
